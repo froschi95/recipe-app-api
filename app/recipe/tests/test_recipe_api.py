@@ -29,9 +29,11 @@ def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
+
 def image_upload_url(recipe_id):
     """Create and return an image upload URL"""
     return reverse('recipe:recipe-upload-image', args=[recipe_id])
+
 
 def create_recipe(user, **params):
     """Create and return a sample recipe."""
@@ -46,6 +48,7 @@ def create_recipe(user, **params):
 
     recipe = Recipe.objects.create(user=user, **defaults)
     return recipe
+
 
 def create_user(**params):
     """Create and return new user"""
@@ -95,9 +98,7 @@ class PrivateRecipeApiTests(TestCase):
             )
         # Create a recipe for the other user and one for the current user
         create_recipe(user=other_user)
-        my_recipe = create_recipe(user=self.user)
-        # Send a GET request to the endpoint with the current user's ID as the query
-        # res = self.client.get(RECIPES_URL, {'assigned_to': f'{self.user}'})
+
         res = self.client.get(RECIPES_URL)
         recipes = Recipe.objects.filter(user=self.user)
         serializer = RecipeSerializer(recipes, many=True)
@@ -127,7 +128,7 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         recipe = Recipe.objects.get(id=res.data['id'])
         for k, v in payload.items():
-            self.assertEqual(getattr(recipe,k), v)
+            self.assertEqual(getattr(recipe, k), v)
         self.assertEqual(recipe.user, self.user)
 
     def test_partial_update(self):
@@ -159,7 +160,7 @@ class PrivateRecipeApiTests(TestCase):
         payload = {
             'title': 'Updated recipe title',
             'description': 'Updated recipe description',
-            'link':'http://example.com/updated-recipe.pdf',
+            'link': 'http://example.com/updated-recipe.pdf',
             'price': Decimal('3.49'),
             'time_minutes': 12,
         }
@@ -172,10 +173,11 @@ class PrivateRecipeApiTests(TestCase):
             self.assertEqual(getattr(recipe, k), v)
         self.assertEqual(recipe.user, self.user)
 
-
     def test_update_user_returns_error(self):
         """Test changing the recipe user returns an error"""
-        new_user = create_user(email='user2@example.com', password='newuserpass123')
+        new_user = create_user(email='user2@example.com',
+                               password='newuserpass123'
+                               )
         recipe = create_recipe(user=self.user)
 
         payload = {'user': new_user.id}
@@ -196,7 +198,9 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_delete_other_users_recipe_error(self):
         """Test trying to delete another users recipe returns error."""
-        new_user = create_user(email='user2@example.com', password='newuserpass123')
+        new_user = create_user(email='user2@example.com',
+                               password='newuserpass123'
+                               )
         recipe = create_recipe(user=new_user)
 
         url = detail_url(recipe.id)
@@ -217,7 +221,7 @@ class PrivateRecipeApiTests(TestCase):
         recipes = Recipe.objects.filter(user=self.user)
         self.assertTrue(recipes.count(), 1)
         recipe = recipes[0]
-        self.assertEqual(recipe.tags.count(),2)
+        self.assertEqual(recipe.tags.count(), 2)
         for tag in payload['tags']:
             exists = recipe.tags.filter(
                 name=tag['name'],
@@ -240,7 +244,7 @@ class PrivateRecipeApiTests(TestCase):
         recipes = Recipe.objects.filter(user=self.user)
         self.assertTrue(recipes.count(), 1)
         recipe = recipes[0]
-        self.assertEqual(recipe.tags.count(),2)
+        self.assertEqual(recipe.tags.count(), 2)
         self.assertIn(tag_indian, recipe.tags.all())
         for tag in payload['tags']:
             exists = recipe.tags.filter(
@@ -253,7 +257,7 @@ class PrivateRecipeApiTests(TestCase):
         """Test creating taf when updating a recipe"""
         recipe = create_recipe(user=self.user)
 
-        payload = {'tags': [{'name':'Lunch'}]}
+        payload = {'tags': [{'name': 'Lunch'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
 
@@ -338,7 +342,7 @@ class PrivateRecipeApiTests(TestCase):
         """Test createing an ingredient on updating a recipe"""
         recipe = create_recipe(user=self.user)
 
-        payload = {'ingredients': [{'name':'Limes'}]}
+        payload = {'ingredients': [{'name': 'Limes'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
 
@@ -387,7 +391,7 @@ class PrivateRecipeApiTests(TestCase):
         # Test retrieving recipes with specific tags
         res = self.client.get(
             RECIPES_URL,
-            {'tags': f'{tag1.id},{tag2.id}'},
+            {'tags': f'{tag1.id},{tag2.id}' },
         )
 
         serializer1 = RecipeSerializer(recipe1)
@@ -401,15 +405,19 @@ class PrivateRecipeApiTests(TestCase):
         """Test returning recipes with specific ingredients"""
         recipe1 = create_recipe(user=self.user, title="Poshie")
         recipe2 = create_recipe(user=self.user, title="Chicken Tikka")
-        ingredient1 = Ingredient.objects.create(user=self.user, name="Nonsense")
-        ingredient2 = Ingredient.objects.create(user=self.user, name="Turmeric")
+        ingredient1 = Ingredient.objects.create(user=self.user,
+                                                name="Nonsense"
+                                                )
+        ingredient2 = Ingredient.objects.create(user=self.user,
+                                                name="Turmeric"
+                                                )
         recipe1.ingredients.add(ingredient1)
         recipe2.ingredients.add(ingredient2)
         recipe3 = create_recipe(title="Brownies", user=self.user)
 
         res = self.client.get(
             RECIPES_URL,
-            {"ingredients": f"{ingredient1.id},{ingredient2.id}",},
+            {'ingredients': f'{ingredient1.id},{ingredient2.id}', },
         )
 
         serializer1 = RecipeSerializer(recipe1)

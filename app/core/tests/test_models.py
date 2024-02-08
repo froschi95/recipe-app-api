@@ -14,6 +14,7 @@ def create_user(email='user@example.com', password='testpass123'):
     """Create and return a new user"""
     return get_user_model().objects.create_user(email, password)
 
+
 class ModelTests(TestCase):
     """Test models."""
 
@@ -21,7 +22,8 @@ class ModelTests(TestCase):
         """Test creating a user with an email is successful"""
         email = 'test@example.com'
         password = 'testpass123'
-        user = get_user_model().objects.create_user(email=email, password=password)
+        user = get_user_model().objects.create_user(email=email,
+                                                    password=password)
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))

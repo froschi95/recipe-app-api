@@ -120,8 +120,17 @@ class PrivateIngredientApiTEst(TestCase):
         """Test filtered ingredients returns a unique list"""
         ing = Ingredient.objects.create(user=self.user, name="Eggs")
         Ingredient.objects.create(user=self.user, name="Cheese")
-        recipe1 = Recipe.objects.create(title="Eggs Benedict", time_minutes=30, price=Decimal("7.99"), user=self.user)
-        recipe2 = Recipe.objects.create(title="Herb Eggs", time_minutes=60, price=Decimal("4.99"), user=self.user)
+        recipe1 = Recipe.objects.create(
+                                        title="Eggs Benedict",
+                                        time_minutes=30,
+                                        price=Decimal("7.99"),
+                                        user=self.user
+                                        )
+        recipe2 = Recipe.objects.create(title="Herb Eggs",
+                                        time_minutes=60,
+                                        price=Decimal("4.99"),
+                                        user=self.user
+                                        )
         recipe1.ingredients.add(ing)
         recipe2.ingredients.add(ing)
 

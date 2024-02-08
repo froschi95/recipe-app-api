@@ -19,6 +19,7 @@ def detail_url(tag_id):
     """Create and return a tag detail url"""
     return reverse('recipe:tag-detail', args=[tag_id])
 
+
 def create_user(email='user@example.com', password='testpass123'):
     """Create and return a user"""
     return get_user_model().objects.create_user(email=email, password=password)
@@ -49,7 +50,7 @@ class PrivateTagsApiTests(TestCase):
         Tag.objects.create(user=self.user, name='Vegan')
         Tag.objects.create(user=self.user, name='Dessert')
 
-        res  = self.client.get(TAGS_URL)
+        res = self.client.get(TAGS_URL)
 
         tags = Tag.objects.all().order_by('-name')
         serializer = TagSerializer(tags, many=True)
@@ -117,7 +118,7 @@ class PrivateTagsApiTests(TestCase):
         recipe = Recipe.objects.create(
             title='Coriander and fried mushrooms',
             time_minutes=20,
-            price=5.00,
+            price=Decimal('5.00'),
             user=self.user
         )
         recipe.tags.add(tag1)
@@ -134,14 +135,21 @@ class PrivateTagsApiTests(TestCase):
         """Test filtered tags returns a unique list"""
         tag = Tag.objects.create(user=self.user, name="Tag")
         Tag.objects.create(user=self.user, name="Other tag")
-        recipe1 = Recipe.objects.create(title='Recipe 1', time_minutes=30, price=10.00, user=self.user)
+        recipe1 = Recipe.objects.create(title='Recipe 1',
+                                        time_minutes=30,
+                                        price=Decimal('10.00'),
+                                        user=self.user
+                                        )
         recipe1.tags.add(tag)
-        recipe2 = Recipe.objects.create(title='Recipe 2', time_minutes=60, price=20.00, user=self.user)
+        recipe2 = Recipe.objects.create(title='Recipe 2',
+                                        time_minutes=60,
+                                        price=Decimal('20.00'),
+                                        user=self.user
+                                        )
         recipe2.tags.add(tag)
 
         res = self.client.get(TAGS_URL, {'assigned_only': 1})
 
-        # The points should be returned as a list containing one item since it is repeated in both recipes
+        # The points should be returned as a list containing one
+        # item since it is repeated in both recipes
         self.assertEqual(len(res.data), 1)
-        # # And that item should be the same as the first tag object initialized above
-        # self.assertEqual(res.data[0], TagSerializer(tag).data)
