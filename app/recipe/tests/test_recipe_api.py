@@ -391,7 +391,7 @@ class PrivateRecipeApiTests(TestCase):
         # Test retrieving recipes with specific tags
         res = self.client.get(
             RECIPES_URL,
-            {'tags': f'{tag1.id},{tag2.id}' },
+            {'tags': f'{tag1.id},{tag2.id}'},
         )
 
         serializer1 = RecipeSerializer(recipe1)
